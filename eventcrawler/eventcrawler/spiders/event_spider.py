@@ -1,7 +1,12 @@
+import difflib
+import math
+from collections import Counter
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.selector import Selector
 from scrapy.item import Item
+from scrapy.contrib.loader import ItemLoader
+from eventcrawler.items import EventcrawlerItem 
 
 class eventSpider(CrawlSpider):
     name="event"
@@ -30,4 +35,31 @@ class eventSpider(CrawlSpider):
     
     def parse_links(self,response):
         self.log('Hi, this is an item page! %s' % response.url)
+        loader = ItemLoader(item=EventcrawlerItem(), response=response)
+        loader.add_value('link',response.url)
+        loader.add_value('score',self.find_similarity_score(self.start_urls[0],response.url,'cosine'))
+        return loader.load_item()
 
+    def find_similarity_score(self,start_url,response_url,func):
+        if func=='seqmatcher':
+            seq=difflib.SequenceMatcher(start_url=start_url.lower(), response_url=response_url.lower())
+            return float(seq.ratio())
+        elif func=='cosine':
+            vec1=Counter(start_url.split('/'))
+            vec2=Counter(response_url.split('/'))
+            return self.get_cosine(vec1,vec2)
+
+            
+    def get_cosine(self,vec1, vec2):
+        intersection = set(vec1.keys()) & set(vec2.keys())
+        numerator = sum([vec1[x] * vec2[x] for x in intersection])
+
+        sum1 = sum([vec1[x]**2 for x in vec1.keys()])
+        sum2 = sum([vec2[x]**2 for x in vec2.keys()])
+        denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+        if not denominator:
+           return 0.0
+        else:
+           return float(numerator) / denominator
+       
