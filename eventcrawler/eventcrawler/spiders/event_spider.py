@@ -39,7 +39,7 @@ class eventSpider(CrawlSpider):
         self.log('Hi, this is an item page! %s' % response.url)
         loader = ItemLoader(item=EventcrawlerItem(), response=response)
         loader.add_value('link',response.url)
-        loader.add_value('score',self.find_similarity_score(self.start_urls[0],response.url,'seqmatcher'))
+        loader.add_value('score',self.find_similarity_score(self.start_urls[0],response.url,'cosine'))
         return loader.load_item()
 
 
