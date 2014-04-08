@@ -1,4 +1,5 @@
-import difflib
+import re
+from difflib import SequenceMatcher
 import math
 from collections import Counter
 from scrapy.contrib.spiders import CrawlSpider, Rule
@@ -7,6 +8,7 @@ from scrapy.selector import Selector
 from scrapy.item import Item
 from scrapy.contrib.loader import ItemLoader
 from eventcrawler.items import EventcrawlerItem 
+from scrapy.http import Request
 
 class eventSpider(CrawlSpider):
     name="event"
@@ -37,16 +39,20 @@ class eventSpider(CrawlSpider):
         self.log('Hi, this is an item page! %s' % response.url)
         loader = ItemLoader(item=EventcrawlerItem(), response=response)
         loader.add_value('link',response.url)
-        loader.add_value('score',self.find_similarity_score(self.start_urls[0],response.url,'cosine'))
+        loader.add_value('score',self.find_similarity_score(self.start_urls[0],response.url,'seqmatcher'))
         return loader.load_item()
+
 
     def find_similarity_score(self,start_url,response_url,func):
         if func=='seqmatcher':
-            seq=difflib.SequenceMatcher(start_url=start_url.lower(), response_url=response_url.lower())
-            return float(seq.ratio())
+            sum=0
+            for i in range(len(start_url.split('/'))):
+                seq=SequenceMatcher(a=re.split('/|\?|\&|\=',start_url)[i].lower(),b=re.split('/|\?|\&|\=',response_url)[i].lower())
+                sum+=float(seq.ratio())
+            return sum
         elif func=='cosine':
-            vec1=Counter(start_url.split('/'))
-            vec2=Counter(response_url.split('/'))
+            vec1=Counter(re.split('/|\?|\&|\=',start_url))
+            vec2=Counter(re.split('/|\?|\&|\=',response_url))
             return self.get_cosine(vec1,vec2)
 
             
