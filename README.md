@@ -38,9 +38,7 @@ the installation details [here](http://doc.scrapy.org/en/latest/intro/install.ht
 
 Use Git to clone the repository you could use
 
-'''javascript
-git clone https://github.com/sbondada/EventCrawler.git
-'''
+>git clone https://github.com/sbondada/EventCrawler.git
 
 ### Locate the Root Repository
 
@@ -68,9 +66,7 @@ You can modify the configuration parameters of the code by changing the values i
     
 We Use Scrapy to execute the program. Run the following command.
 
-''' javascript
-scrapy crawl event -a start_url='http://calendar.boston.com/lowell_ma/events/show/274127485-mrt-presents-shakespeares-will'
-'''
+>scrapy crawl event -a start_url='http://calendar.boston.com/lowell_ma/events/show/274127485-mrt-presents-shakespeares-will'
 
 * scrapy- command line tool.
 * crawl- start crawling a spider
