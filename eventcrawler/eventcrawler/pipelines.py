@@ -12,11 +12,11 @@ class EventcrawlerPipeline(object):
         self.file=open('outlinks.jl','wb')
 
     def process_item(self, item, spider):
-        #line=json.dumps(dict(item))+"\n"
-        #self.file.write(line)
+        line=json.dumps(dict(item))+"\n"
+        self.file.write(line)
         self.items.append((item['score'],item['link']))
         self.items=sorted(self.items,reverse=True)
-        self.file=open('outlinks.jl','wb')
+        self.results=open('toplinks.jl','wb')
         for tup in self.items[:10]:
-            self.file.write(tup[1][0]+'\n')
+            self.results.write(tup[1][0]+'\n')
         return item
